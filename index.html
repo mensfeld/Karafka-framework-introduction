@@ -42,8 +42,7 @@
       <div class="slides">
         <section>
           <h2>Karafka – Ruby framework for building Kafka message based applications</h2>
-          <img src="img/kafka.jpg" style="background: none; border: none; box-shadow: 0 0 0 0 #fff;"/>
-          <img src="img/rubylogo.gif" style="background: none; border: none; box-shadow: 0 0 0 0 #fff;"/>
+          <img src="img/karafka-04.png" style="background: none; border: none; box-shadow: 0 0 0 0 #fff;"/>
           <p>
             <small>
               <a href="http://mensfeld.pl">Maciej Mensfeld</a> /
@@ -111,6 +110,7 @@
             <li>We've needed tool that would allow us to build applications faster</li>
             <li>We've needed tool that would allow us to process faster</li>
             <li>We've needed tool that would allow us to handle events and messages from many sources and process them the same way</li>
+            <li>Because single message can be automatically delivered to many Karafka applications</li>
           </ul>
         </section>
 
@@ -156,15 +156,15 @@
         </section>
 
         <section>
-          <h4>Karafka uses goods that are already existing</h4>
+          <h4>Karafka uses goods that are already well known</h4>
 
           <ul>
-            <li>Most popular Ruby Kafka client: Poseidon</li>
-            <li>Poseidon Cluster gem for topic partition distribution</li>
+            <li>Poseidon - most popular Ruby Kafka client</li>
+            <li>Poseidon Cluster - gem for topics partitions distribution</li>
             <li>Celluloid to introduce sockets clustering inside threads</li>
             <li>Sidekiq to support background data processing</li>
-            <li>Rails app structure (app/ config/ lib/) for bigger apps</li>
-            <li>Sinatra app structure for small apps (even as a single file)</li>
+            <li>Rails app structure concept for bigger apps</li>
+            <li>Sinatra app structure concept for small apps</li>
           </ul>
         </section>
 
@@ -201,80 +201,6 @@
           <h4>Karafka framework components</h4>
 
           <img src="img/karafka3.png" style="max-width: 45%"/>
-        </section>
-
-        <section>
-          <h4>Karafka framework scalability</h4>
-
-          <p>
-            Each scaling strategy targets a different problem
-          </p>
-
-          <p>
-            Scaling strategies can be combined
-          </p>
-
-          <p>
-            Following strategies are available:
-          </p>
-
-          <ul>
-            <li>Scaling using multiple Karafka threads</li>
-            <li>Scaling using Kafka partitions</li>
-            <li>Scaling using Karafka clusterization</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Scaling using multiple threads</h4>
-
-          <ul>
-            <li>Good when you have multiple topics that are not 100% utilized</li>
-            <li>Good when you want to provide paralleism but still have a single process running</li>
-            <li>Generally the easiest way to have multiple controllers listening at the same time</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Scaling using multiple threads</h4>
-
-          <img src="img/karafka4.png" style="max-width: 50%"/>
-
-        </section>
-
-        <section>
-          <h4>Scaling using Kafka partitions</h4>
-
-          <ul>
-            <li>Topic partition is the unit of parallelism in Kafka</li>
-            <li>Partitions are an answer to heavy duty topics</li>
-            <li>Karafka processes automatically rebalance between available partitions</li>
-            <li>Karafka requires topics partitioning when you want to handle more than 30 000 messages per second per topic</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Scaling using Kafka partitions</h4>
-
-          <img src="img/partitions.png" style="max-width: 70%"/>
-        </section>
-
-        <section>
-          <h4>Scaling using Karafka process cluster</h4>
-
-          <ul>
-            <li>Single Karafka process can handle up to 30 000 messages per second (total)</li>
-            <li>It measn that the bigger your application is the slower it gets (per controller)</li>
-            <li>Thanks to process clustering, each Karafka process will listen only to a selected part of topics</li>
-            <li>That way with a 10 process cluster, we can increase throughput to more than 300 000 messages per second</li>
-          </ul>
-        </section>
-
-        <section>
-          <h4>Scaling using Karafka process cluster</h4>
-
-
-          <img src="img/cluster2.png" style="max-width: 70%"/>
         </section>
 
         <section>
@@ -384,7 +310,7 @@ end
 </code></pre>
 
           <p>
-            It can be used to provide first layer data filtering
+            It can be used to provide first layer data filtering. If it returns false, Sidekiq task won't be scheduled
           </p>
         </section>
 
@@ -403,7 +329,137 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
         </section>
 
         <section>
+          <h4>Karafka performance</h4>
+
+          <ul>
+            <li>Is strongly dependent on what you do in your code</li>
+            <li>It depends also on Apache Kafka performance</li>
+            <li>Connection between Karafka and Redis (for Sidekiq) is a factor as well</li>
+            <li>Message size is a factor (since it get deserialized to JSON by default)</li>
+            <li>Single process is able to process around 30 000 messages per second</li>
+            <li>Less than a ms to send a message with in the slowest (secure) mode (Kafka request.required.acks -1) </li>
+            <li>Less than 1/10 of a ms to send a message with in the 0 mode (Kafka request.required.acks 0) </li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Karafka framework scalability</h4>
+
+          <p>
+            Each scaling strategy targets a different problem
+          </p>
+
+          <p>
+            Scaling strategies can be combined
+          </p>
+
+          <p>
+            Following strategies are available:
+          </p>
+
+          <ul>
+            <li>Scaling using multiple Karafka threads</li>
+            <li>Scaling using Kafka partitions</li>
+            <li>Scaling using Karafka clusterization</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Scaling using multiple threads</h4>
+
+          <ul>
+            <li>Good when you have multiple topics that are not 100% utilized</li>
+            <li>Good when you want to provide paralleism but still have a single process running</li>
+            <li>Generally the easiest way to have multiple controllers listening at the same time</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Scaling using multiple threads</h4>
+
+          <img src="img/karafka4.png" style="max-width: 50%"/>
+
+        </section>
+
+        <section>
+          <h4>Scaling using Kafka partitions</h4>
+
+          <ul>
+            <li>Topic partition is the unit of parallelism in Kafka</li>
+            <li>Partitions are an answer to heavy duty topics</li>
+            <li>Karafka processes automatically rebalance between available partitions</li>
+            <li>Karafka requires topics partitioning when you want to handle more than 30 000 messages per second per topic</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Scaling using Kafka partitions</h4>
+
+          <img src="img/partitions.png" style="max-width: 70%"/>
+        </section>
+
+        <section>
+          <h4>Scaling using Karafka processes clustering</h4>
+
+          <ul>
+            <li>Single Karafka process can handle up to 30 000 messages per second (total)</li>
+            <li>It measn that the bigger your application is the slower it gets (per controller)</li>
+            <li>Thanks to process clustering, each Karafka process will listen only to a selected part of topics</li>
+            <li>That way with a 10 process cluster, we can increase throughput to more than 300 000 messages per second</li>
+          </ul>
+        </section>
+
+        <section>
+          <h4>Scaling using Karafka processes clustering</h4>
+
+          <img src="img/cluster2.png" style="max-width: 70%"/>
+        </section>
+
+        <section>
+          <h4>I want to integrate it with my Rails/Sinatra app</h4>
+
+          <ul>
+            <li>It can be done!</li>
+            <li>The best approach is to start generating messages from your current applications via
+                <a href="https://github.com/karafka/waterdrop">WaterDrop</a>
+            </li>
+            <li>With WaterDrop you can tell your Karafka apps what your other Ruby components are doing</li>
+          </ul>
+
+<pre><code data-trim>
+def create
+  video = Video.create!(params[:video])
+  WaterDrop::Message.new(:video_created, video).send!
+  respond_with video
+end
+</pre></code>
+
+          <ul>
+            <li>Once you start sending messages, you can extract functionalities and responsibilities and move them to Karafka based applications</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>READ MORE</h2>
+
+          <ul>
+            <li><a href="https://github.com/karafka/karafka">github.com/karafka/karafka</a></li>
+            <li><a href="https://github.com/karafka">github.com/karafka</a></li>
+            <li><a href="http://dev.mensfeld.pl/tag/karafka">dev.mensfeld.pl/tag/karafka</a></li>
+            <li><a href="http://kafka.apache.org/">kafka.apache.org</a></li>
+            <li><a href="https://zookeeper.apache.org">zookeeper.apache.org</a></li>
+          </ul>
+        </section>
+
+        <section>
           <h1>THE END - Q &amp; A</h1>
+
+          <ul>
+            <li><a href="https://github.com/karafka">github.com/karafka</a></li>
+            <li><a href="mailto:maciej@mensfeld.pl">maciej@mensfeld.pl</a></li>
+            <li><a href="http://twitter.com/maciejmensfeld">@maciejmensfeld</a></li>
+            <li><a href="http://mensfeld.pl">mensfeld.pl</a></li>
+          </ul>
         </section>
 
       </div>
