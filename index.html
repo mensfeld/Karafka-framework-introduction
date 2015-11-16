@@ -55,6 +55,7 @@
         <section>
           <h4>What is Apache Kafka?</h4>
 
+
           <ul>
             <li>Kafka is a high-throughput distributed messaging system</li>
             <li>Kafka is designed to allow a single cluster to serve as the central data backbone for a large organization</li>
@@ -105,11 +106,9 @@
           <h4>Why we developed Karafka?</h4>
 
           <ul>
-            <li>Because Ruby is good</li>
-            <li>Because Kafka is good </li>
-            <li>We've needed tool that would allow us to build applications faster</li>
-            <li>We've needed tool that would allow us to process faster</li>
-            <li>We've needed tool that would allow us to handle events and messages from many sources and process them the same way</li>
+            <li>We've needed a tool that would allow us to build applications faster</li>
+            <li>We've needed a tool that would allow us to process faster</li>
+            <li>We've needed a tool that would allow us to handle events and messages from many sources and process them the same way</li>
             <li>Because single message can be automatically delivered to many Karafka applications</li>
           </ul>
         </section>
@@ -118,11 +117,11 @@
           <h4>Why even bother with messaging when there is HTTP and REST?</h4>
 
           <ul>
-            <li>Because HTTP does not provide broadcasting</li>
-            <li>Because we often need to trigger many actions based on a single event</li>
-            <li>Because we don't need to maintain internal API clients</li>
-            <li>Because with a message broker you can replace microservices transparently</li>
-            <li>Because you can obtain better microservices isolation</li>
+            <li>HTTP does not provide broadcasting</li>
+            <li>We often need to trigger many actions based on a single event</li>
+            <li>We don't want to maintain internal API clients</li>
+            <li>With a message broker you can replace microservices transparently</li>
+            <li>You can obtain better microservices isolation</li>
             <li>Because you can create new microservices that use multiple different events from many sources</li>
           </ul>
         </section>
@@ -255,7 +254,7 @@ Users::PaymentsController.worker #=> Users::PaymentsWorker
 </code></pre>
 
           <p>
-            By default Karafka builds a worker class per controller based on a controller name. This will allow you to prioritize (if needed) some of the Sidekiq workers (or spin up separate workers for given queues)
+            By default Karafka builds a worker class per controller based on a controller name. This will allow you to prioritize (if needed) Sidekiq workers
           </p>
 
         </section>
@@ -264,7 +263,7 @@ Users::PaymentsController.worker #=> Users::PaymentsWorker
           <h4>Karafka conventions and features</h4>
 
           <p>
-            Of course you can overwrite all of the default behaviours
+            You can overwrite all of the default behaviours
           </p>
 
 <pre><code data-trim>
@@ -333,11 +332,10 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
 
           <ul>
             <li>Is strongly dependent on what you do in your code</li>
-            <li>It depends also on Apache Kafka performance</li>
-            <li>Connection between Karafka and Redis (for Sidekiq) is a factor as well</li>
-            <li>Message size is a factor (since it get deserialized to JSON by default)</li>
-            <li>Single process is able to process around 30 000 messages per second</li>
-            <li>Less than a ms to send a message with in the slowest (secure) mode (Kafka request.required.acks -1) </li>
+            <li>Redis performance (for Sidekiq) is a factor as well</li>
+            <li>Message size is a factor</li>
+            <li>Single process ican handle around 30 000 messages/sec</li>
+            <li>Less than a ms to send a message with the slowest (secure) mode (Kafka request.required.acks -1) </li>
             <li>Less than 1/10 of a ms to send a message with in the 0 mode (Kafka request.required.acks 0) </li>
           </ul>
         </section>
@@ -360,7 +358,7 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
           <ul>
             <li>Scaling using multiple Karafka threads</li>
             <li>Scaling using Kafka partitions</li>
-            <li>Scaling using Karafka clusterization</li>
+            <li>Scaling using Karafka clusterization (in progress)</li>
           </ul>
         </section>
 
@@ -387,7 +385,7 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
           <ul>
             <li>Topic partition is the unit of parallelism in Kafka</li>
             <li>Partitions are an answer to heavy duty topics</li>
-            <li>Karafka processes automatically rebalance between available partitions</li>
+            <li>Karafka processes automatically rebalances between available partitions</li>
             <li>Karafka requires topics partitioning when you want to handle more than 30 000 messages per second per topic</li>
           </ul>
         </section>
@@ -403,7 +401,7 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
 
           <ul>
             <li>Single Karafka process can handle up to 30 000 messages per second (total)</li>
-            <li>It measn that the bigger your application is the slower it gets (per controller)</li>
+            <li>It means that the bigger your application is, the slower it gets (per controller)</li>
             <li>Thanks to process clustering, each Karafka process will listen only to a selected part of topics</li>
             <li>That way with a 10 process cluster, we can increase throughput to more than 300 000 messages per second</li>
           </ul>
@@ -419,7 +417,6 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
           <h4>I want to integrate it with my Rails/Sinatra app</h4>
 
           <ul>
-            <li>It can be done!</li>
             <li>The best approach is to start generating messages from your current applications via
                 <a href="https://github.com/karafka/waterdrop">WaterDrop</a>
             </li>
@@ -438,6 +435,27 @@ end
             <li>Once you start sending messages, you can extract functionalities and responsibilities and move them to Karafka based applications</li>
           </ul>
         </section>
+
+        <section>
+          <h2>WANT TO CONTRIBUTE?</h2>
+
+          <p>
+            <a href="https://github.com/karafka">github.com/karafka</a>
+          </p>
+
+
+          <p>
+            <img src="img/github.png" style="background: none; border: none; box-shadow: 0 0 0 0 #fff; margin: 0; padding: 0;"/>
+          </p>
+
+          <ul>
+            <li>The more people star it, the more people use it</li>
+            <li>The more people use it, the more people star it</li>
+            <li>There are many issues you can help us fix</li>
+            <li>We use Code Climate and Travis with many QA tools to maintain the quality</li>
+          </ul>
+        </section>
+
 
         <section>
           <h2>READ MORE</h2>
