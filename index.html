@@ -450,7 +450,7 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
 <pre><code data-trim>
 def create
   video = Video.create!(params[:video])
-  WaterDrop::Message.new(:video_created, video).send!
+  WaterDrop::Message.new(:video_created, video.to_json).send!
   respond_with video
 end
 </pre></code>
