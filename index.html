@@ -57,6 +57,7 @@
           <h4>A bit about me</h4>
 
           <ul>
+          <li>I'm from Poland (Europe)</li>
           <li>9 years of commercial exp in IT</li>
           <li>7 years with Ruby and Rails</li>
           <li>I find Ruby quite useful</li>
@@ -182,8 +183,7 @@
           <h4>Karafka uses goods that are already well known</h4>
 
           <ul>
-            <li>Poseidon - most popular Ruby Kafka client</li>
-            <li>Poseidon Cluster - gem for topics partitions distribution</li>
+            <li>Poseidon (soon 2 be switched to Ruby-Kafka)</li>
             <li>Celluloid to introduce sockets clustering inside threads</li>
             <li>Sidekiq to support background data processing</li>
             <li>Rails app structure concept for bigger apps</li>
@@ -200,8 +200,8 @@
 
           <ul>
             <li>Karafka Framework - Engine to process incoming messages</li>
-            <li>WaterDrop - Poseidon based library for outgoing messages</li>
-            <li>Sidekiq Glass - Sidekiq worker wrapper that provides optional timeout and after failure (reentrancy)</li>
+            <li>WaterDrop - Ruby-Kafka based library for outgoing messages</li>
+            <li>Worker Glass - Worker wrapper that provides optional timeout and after failure (reentrancy)</li>
           </ul>
         </section>
 
@@ -217,6 +217,7 @@
             <li>Router (Karafka::Routing::Router)</li>
             <li>Base Controller (Karafka::BaseController)</li>
             <li>Base Worker (Karafka::BaseWorker)</li>
+            <li>CLI (Karafka::Cli)</li>
           </ul>
         </section>
 
@@ -237,15 +238,8 @@ gem 'karafka', github: 'karafka/karafka'
 </code></pre>
 
 <pre><code data-trim>
-# rakefile.rb
-ENV['KARAFKA_ENV'] ||= 'development'
-
-Bundler.require(:default, ENV['KARAFKA_ENV'])
-</code></pre>
-
-<pre><code data-trim>
 bundle install
-bundle exec rake karafka:install
+bundle exec karafka install
 </code></pre>
 
           <p>
@@ -266,22 +260,48 @@ bundle exec rake karafka:install
           <h4>Karafka conventions and features</h4>
 
           <p>
-            Karafka maps controllers names directly to topics names, so you can easily build you applications based on topics naming conventions
+            Karafka has a routing engine similar to the Rails one (just much smaller)
           </p>
 
 
 <pre><code data-trim>
-NewVideosController.topic #=> :new_videos
-NewVideosController.worker #=> NewVideosWorker
-Users::PaymentsController.topic #=> :users_payments
-Users::PaymentsController.worker #=> Users::PaymentsWorker
+App.routes.draw do
+  topic :incoming_messages do
+    group :composed_application
+    controller Videos::DetailsController
+    worker Workers::DetailsWorker
+    parser Parsers::BinaryToJson
+    interchanger Interchangers::Binary
+  end
+
+  # If you work with JSON data, only controller is required
+  topic :new_videos do
+    controller Videos::NewVideosController
+  end
+end
+</code></pre>
+
+        </section>
+
+        <section>
+          <h4>Karafka conventions and features</h4>
+
+<pre><code data-trim>
+NewVideosController  #=> NewVideosWorker
+Users::PaymentsController #=> Users::PaymentsWorker
 </code></pre>
 
           <p>
             By default Karafka builds a worker class per controller based on a controller name. This will allow you to prioritize (if needed) Sidekiq workers
           </p>
 
+
         </section>
+
+
+
+
+
 
         <section>
           <h4>Karafka conventions and features</h4>
@@ -291,14 +311,16 @@ Users::PaymentsController.worker #=> Users::PaymentsWorker
           </p>
 
 <pre><code data-trim>
-class CreateVideosController < Karafka::BaseController
-  self.topic = :super_topic_name
-  self.worker = MyDifferentWorker
-
-  def perform; end
+  # If you work with JSON data, only controller is required
+  topic :new_videos do
+    controller Videos::NewVideosController
+    # Instead of a default Videos::NewVideosWorker
+    worker Videos::DifferentWorker
+  end
 end
 </code></pre>
         </section>
+
 
         <section>
           <h4>Karafka conventions and features</h4>
@@ -340,14 +362,19 @@ end
         <section>
           <h4>Karafka conventions and features</h4>
 
-There are also few usefull rake tasks available:
+There are also few usefull CLI commands available:
 
 <pre><code data-trim>
-bundle exec rake -T
-rake kafka:topics     # Lists all the topics available on a Kafka
-rake karafka:install  # Creates whole minimal app structure
-rake karafka:run      # Runs a single Karafka processing instance
-rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
+bundle exec karafka [COMMAND]
+
+help    # Describe available commands or one specific command
+console # Start the Karafka console (short-cut alias: "c")
+info    # Print configuration details and other options
+install # Install all required things for Karafka application
+routes  # Print out all defined routes in alphabetical order
+server  # Start the Karafka server (short-cut alias: "s")
+topics  # List all topics available on Karafka server
+worker  # Start the Karafka Sidekiq worker
 </pre></code>
         </section>
 
@@ -358,7 +385,7 @@ rake karafka:sidekiq  # Runs a single Sidekiq worker for Karafka
             <li>Is strongly dependent on what you do in your code</li>
             <li>Redis performance (for Sidekiq) is a factor as well</li>
             <li>Message size is a factor</li>
-            <li>Single process ican handle around 30 000 messages/sec</li>
+            <li>Single process can handle around 30 000 messages/sec</li>
             <li>Less than a ms to send a message with the slowest (secure) mode (Kafka request.required.acks -1) </li>
             <li>Less than 1/10 of a ms to send a message with in the 0 mode (Kafka request.required.acks 0) </li>
           </ul>
