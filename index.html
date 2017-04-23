@@ -183,7 +183,7 @@
           <h4>Karafka uses goods that are already well known</h4>
 
           <ul>
-            <li>Poseidon (soon 2 be switched to Ruby-Kafka)</li>
+            <li>Ruby-Kafka</li>
             <li>Celluloid to introduce sockets clustering inside threads</li>
             <li>Sidekiq to support background data processing</li>
             <li>Rails app structure concept for bigger apps</li>
@@ -347,9 +347,9 @@ end
 class CreateVideosController < Karafka::BaseController
   before_enqueue -> {
     # Reject old incoming messages
-    # When before_enqueue returns false,
+    # When before_enqueue throws false,
     # task won't be send to Sidekiq
-    return false if params[:sent_at] < 1.minute.ago
+    throw(:abort) if params[:sent_at] < 1.minute.ago
   }
 end
 </code></pre>
@@ -367,14 +367,14 @@ There are also few usefull CLI commands available:
 <pre><code data-trim>
 bundle exec karafka [COMMAND]
 
-help    # Describe available commands or one specific command
 console # Start the Karafka console (short-cut alias: "c")
+flow    # Print application data flow (incoming => outgoing)
+help    # Describe available commands or one specific command
 info    # Print configuration details and other options
 install # Install all required things for Karafka application
 routes  # Print out all defined routes in alphabetical order
 server  # Start the Karafka server (short-cut alias: "s")
-topics  # List all topics available on Karafka server
-worker  # Start the Karafka Sidekiq worker
+worker  # Start the Karafka Sidekiq worker (short-cut alias: "w")
 </pre></code>
         </section>
 
